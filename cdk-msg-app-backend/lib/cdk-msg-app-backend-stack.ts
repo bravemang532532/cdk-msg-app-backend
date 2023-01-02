@@ -233,6 +233,8 @@ export class CdkMsgAppBackendStack extends cdk.Stack {
         privileged: true
       },
     });
+
+
     const buildRolePolicy = new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       resources: ['*'],
@@ -301,12 +303,5 @@ export class CdkMsgAppBackendStack extends cdk.Stack {
       ],
     });
 
-
-    // The code that defines your stack goes here
-
-    // example resource
-    // const queue = new sqs.Queue(this, 'CdkMsgAppBackendQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
   }
 }
