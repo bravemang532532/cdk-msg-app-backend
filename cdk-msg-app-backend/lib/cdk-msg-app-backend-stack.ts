@@ -226,7 +226,7 @@ export class CdkMsgAppBackendStack extends cdk.Stack {
 
 
     const project = new codebuild.PipelineProject(this, 'MyProject', {
-      projectName: `${this.stackName}`,
+      projectName: `project`,
       // source: gitHubSource,
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_2_0,
