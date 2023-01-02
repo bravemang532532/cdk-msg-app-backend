@@ -16,7 +16,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 
 import * as ecs_patterns from 'aws-cdk-lib/aws-ecs-patterns';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import { Duration } from 'aws-cdk-lib';
+import { Duration, } from 'aws-cdk-lib';
 
 
 
