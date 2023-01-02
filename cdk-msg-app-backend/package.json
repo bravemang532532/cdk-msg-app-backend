@@ -20,6 +20,7 @@
     "typescript": "~4.9.4"
   },
   "dependencies": {
+    "@aws-cdk/aws-ec2": "^1.184.1",
     "@aws-cdk/aws-ecr-assets": "^1.184.0",
     "aws-cdk-lib": "2.56.0",
     "cdk-ecr-deployment": "^2.5.6",
