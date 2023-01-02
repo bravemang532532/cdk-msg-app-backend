@@ -4,7 +4,7 @@ import { Construct } from 'constructs';
 
 
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import { RemovalPolicy, CfnOutput } from 'aws-cdk-lib';
+import { RemovalPolicy, SecretValue, CfnOutput } from 'aws-cdk-lib';
 
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 
@@ -17,6 +17,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as ecs_patterns from 'aws-cdk-lib/aws-ecs-patterns';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { Duration } from 'aws-cdk-lib';
+
 
 
 
@@ -39,6 +40,7 @@ import * as codepipeline from 'aws-cdk-lib/aws-codepipeline';
 import * as codepipeline_actions from 'aws-cdk-lib/aws-codepipeline-actions';
 
 
+import { aws_iam, aws_codebuild, aws_codepipeline, aws_codepipeline_actions, aws_s3 } from 'aws-cdk-lib';
 
 
 // import * as ecrDeploy from '../src/index';
@@ -48,9 +50,30 @@ import * as codepipeline_actions from 'aws-cdk-lib/aws-codepipeline-actions';
 
 
 export class CdkMsgAppBackendStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, gitToken: string, github_owner: string, github_repo: string,
+    github_branch: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const role = new aws_iam.Role(this, 'role', { assumedBy: new aws_iam.ServicePrincipal('codebuild.amazonaws.com') })
+    role.addManagedPolicy(aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'))
+
+    //Github actions
+    // const githubUserName = new cdk.CfnParameter(this, "githubUserName", {
+    //   type: "String",
+    //   description: "Github username for source code repository"
+    // })
+
+    // const githubRepository = new cdk.CfnParameter(this, "githubRespository", {
+    //   type: "String",
+    //   description: "Github source code repository",
+    //   default: "cdk-msg-app-backend"
+    // })
+
+    // const githubPersonalTokenSecretName = new cdk.CfnParameter(this, "githubPersonalTokenSecretName", {
+    //   type: "String",
+    //   description: "The name of the AWS Secrets Manager Secret which holds the GitHub Personal Access Token for this project.",
+    //   default: "/cdk-msg-app-backend/github/personal_access_token"
+    // })
 
 
 
@@ -192,15 +215,19 @@ export class CdkMsgAppBackendStack extends cdk.Stack {
     listener.connections.allowDefaultPortFromAnyIpv4('Open to the world');
 
 
-    const code = new codecommit.Repository(this, 'Repository', {
-      repositoryName: 'msg-app-backend',
-      description: 'Node.js backend.', // optional property
-    });
 
 
+    // Code repository on AWS
+
+    // const code = new codecommit.Repository(this, 'Repository', {
+    //   repositoryName: 'msg-app-backend',
+    //   description: 'Node.js backend.', // optional property
+    // });
 
 
     const project = new codebuild.PipelineProject(this, 'MyProject', {
+      projectName: `${this.stackName}`,
+      // source: gitHubSource,
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_2_0,
         privileged: true
@@ -226,17 +253,27 @@ export class CdkMsgAppBackendStack extends cdk.Stack {
     });
     project.addToRolePolicy(buildRolePolicy);
 
-    const sourceOutput = new codepipeline.Artifact();
+
+
+
+
+    const source_output = new aws_codepipeline.Artifact()
     const buildOutput = new codepipeline.Artifact();
-    const sourceAction = new codepipeline_actions.CodeCommitSourceAction({
-      actionName: 'CodeCommit',
-      repository: code,
-      output: sourceOutput,
+    // const production_output = new aws_codepipeline.Artifact()
+
+    const sourceAction = new codepipeline_actions.GitHubSourceAction({
+      actionName: 'github_source',
+      owner: github_owner,
+      repo: github_repo,
+      branch: github_branch,
+      oauthToken: SecretValue.secretsManager(gitToken),
+      output: source_output
     });
+
     const buildAction = new codepipeline_actions.CodeBuildAction({
       actionName: 'CodeBuild',
-      project,
-      input: sourceOutput,
+      project: project,
+      input: source_output,
       outputs: [buildOutput],
     });
 
