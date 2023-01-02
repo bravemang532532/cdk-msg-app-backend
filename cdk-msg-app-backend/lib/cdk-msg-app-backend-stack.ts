@@ -260,7 +260,7 @@ export class CdkMsgAppBackendStack extends cdk.Stack {
 
 
     const source_output = new aws_codepipeline.Artifact()
-    const buildOutput = new codepipeline.Artifact();
+    const staging_output = new codepipeline.Artifact();
     // const production_output = new aws_codepipeline.Artifact()
 
     const sourceAction = new codepipeline_actions.GitHubSourceAction({
@@ -276,7 +276,7 @@ export class CdkMsgAppBackendStack extends cdk.Stack {
       actionName: 'CodeBuild',
       project: project,
       input: source_output,
-      outputs: [buildOutput],
+      outputs: [staging_output],
     });
 
     new codepipeline.Pipeline(this, 'MyPipeline', {
@@ -295,7 +295,7 @@ export class CdkMsgAppBackendStack extends cdk.Stack {
             new codepipeline_actions.EcsDeployAction({
               actionName: "ECS-Service",
               service: service,
-              input: buildOutput
+              input: staging_output
             }
             )
           ]
