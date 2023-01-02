@@ -10,7 +10,7 @@ const env = {
 
 
 const app = new cdk.App();
-new CdkMsgAppBackendStack(app, 'CdkMsgAppBackendStack', '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', 'bravemang532532', 'cdk-msg-app-backend', 'main', { env });
+new CdkMsgAppBackendStack(app, 'CdkMsgAppBackendStack', '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', 'bravemang532532', 'cdk-msg-app-backend', 'main', { env });
 
 // {
 /* If you don't specify 'env', this stack will be environment-agnostic.
